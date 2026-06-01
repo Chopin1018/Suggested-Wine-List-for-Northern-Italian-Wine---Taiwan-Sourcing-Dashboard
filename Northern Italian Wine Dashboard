@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IWS Unit 1 — Northern Italy Wine Sourcing Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #faf8f3;
+  --off-white: #f4f1eb;
+  --warm-gray: #e8e4db;
+  --border: #d9d4c8;
+  --text: #1a1714;
+  --text-muted: #6b6358;
+  --text-light: #9c9186;
+  --teal: #1a7a5e;
+  --teal-light: #e6f4ef;
+  --amber: #b5600a;
+  --amber-light: #fdf0e3;
+  --red: #8b2020;
+  --red-light: #fdf0f0;
+  --blue: #1a4a7a;
+  --blue-light: #e8f0fa;
+  --purple: #4a2a7a;
+  --purple-light: #f0ebfa;
+  --coral: #7a3a1a;
+  --coral-light: #faeee8;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--cream);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.masthead {
+  background: var(--text);
+  color: var(--cream);
+  padding: 2rem 2.5rem;
+  border-bottom: 3px solid #c8a84b;
+}
+
+.masthead h1 {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.3rem;
+  color: #f0e8d5;
+}
+
+.masthead p {
+  font-size: 12px;
+  color: #9c9186;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.legend-bar {
+  background: var(--off-white);
+  border-bottom: 0.5px solid var(--border);
+  padding: 0.6rem 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  font-size: 11px;
+}
+
+.legend-bar .label { color: var(--text-muted); font-weight: 500; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.badge-tw { background: var(--teal-light); color: #0d5a44; }
+.badge-intl { background: var(--amber-light); color: #7a3f05; }
+.badge-rare { background: var(--red-light); color: #6b1515; }
+.badge-pri { background: var(--teal); color: #fff; }
+.badge-sec { background: var(--warm-gray); color: var(--text-muted); }
+
+.layout { display: flex; min-height: calc(100vh - 120px); }
+
+.sidebar {
+  width: 180px;
+  flex-shrink: 0;
+  background: var(--off-white);
+  border-right: 0.5px solid var(--border);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-section { padding: 0.4rem 0; }
+
+.sidebar-section h3 {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-light);
+  padding: 0 1rem 0.3rem;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 0.3rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.35rem 1rem;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background 0.1s;
+}
+
+.sidebar-link:hover { background: var(--warm-gray); color: var(--text); }
+
+.sidebar-link .num {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--warm-gray);
+  font-size: 9px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.main { flex: 1; padding: 1.5rem 2rem 3rem; max-width: 1100px; overflow: hidden; }
+
+.region-section { margin-bottom: 2.5rem; }
+
+.region-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--text);
+}
+
+.region-header h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.region-header .sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.region-header .count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 10px;
+}
+
+.card {
+  background: #fff;
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 8px 12px 6px;
+  border-bottom: 0.5px solid var(--warm-gray);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.region-pill {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.producer-name {
+  font-size: 9px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+.card-body { padding: 10px 12px; }
+
+.wine-name {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 1px;
+  line-height: 1.2;
+}
+
+.grape-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.price-ntd {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.price-usd { font-size: 10px; color: var(--text-light); }
+
+.avail-row { margin-bottom: 7px; }
+
+.notes {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+
+.ret-row { display: flex; flex-wrap: wrap; gap: 3px; }
+
+.ret {
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 0.5px solid var(--border);
+  color: var(--text-muted);
+  background: var(--off-white);
+}
+
+.ret.tw { background: var(--blue-light); color: var(--blue); border-color: #a0bcdb; }
+.ret.eu { background: var(--purple-light); color: var(--purple); border-color: #b8a0d9; }
+
+.sourcing-tip {
+  background: var(--off-white);
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-top: 2rem;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.sourcing-tip h3 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.sourcing-tip strong { color: var(--text); font-weight: 600; }
+
+/* Region color schemes */
+.pill-aosta { background: #e8f4ef; color: #0d5a44; }
+.pill-piemonte { background: #eef6e8; color: #2a5a1a; }
+.pill-liguria { background: #e8eef8; color: #1a3a6a; }
+.pill-lombardia { background: #f0ebfa; color: #3a1a7a; }
+.pill-emilia { background: #fef4e3; color: #7a4505; }
+.pill-trentino { background: #faeee8; color: #7a2a10; }
+.pill-altoadige { background: #e8f8f4; color: #0a4a38; }
+.pill-veneto { background: #fff0e8; color: #7a3a10; }
+.pill-friuli { background: #e8f2fa; color: #1a3a6a; }
+
+@media (max-width: 720px) {
+  .sidebar { display: none; }
+  .masthead { padding: 1.5rem; }
+  .masthead h1 { font-size: 1.8rem; }
+  .main { padding: 1rem; }
+  .legend-bar { padding: 0.6rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>IWS Unit 1 — Northern Italy</h1>
+  <p>Wine Scholar Guild · Suggested Wine List · Taiwan Sourcing Reference · All 9 Regions</p>
+</div>
+
+<div class="legend-bar">
+  <span class="label">Availability:</span>
+  <span class="badge badge-tw">TW Available</span>
+  <span class="badge badge-intl">Intl. Order</span>
+  <span class="badge badge-rare">Rare / Hard to Find</span>
+  <span class="label" style="margin-left:0.5rem">Priority:</span>
+  <span class="badge badge-pri">WSG Priority</span>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-section">
+    <h3>Regions</h3>
+    <a href="#aosta" class="sidebar-link"><span class="num">1</span>Valle d'Aosta</a>
+    <a href="#piemonte" class="sidebar-link"><span class="num">2</span>Piemonte</a>
+    <a href="#liguria" class="sidebar-link"><span class="num">3</span>Liguria</a>
+    <a href="#lombardia" class="sidebar-link"><span class="num">4</span>Lombardia</a>
+    <a href="#emilia" class="sidebar-link"><span class="num">5</span>Emilia-Romagna</a>
+    <a href="#trentino" class="sidebar-link"><span class="num">6</span>Trentino</a>
+    <a href="#altoadige" class="sidebar-link"><span class="num">7</span>Alto Adige</a>
+    <a href="#veneto" class="sidebar-link"><span class="num">8</span>Veneto</a>
+    <a href="#friuli" class="sidebar-link"><span class="num">9</span>Friuli-VG</a>
+    <a href="#sourcing" class="sidebar-link"><span class="num" style="background:#c8a84b;color:#fff">!</span>Sourcing Guide</a>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- VALLE D'AOSTA -->
+<section class="region-section" id="aosta">
+<div class="region-header">
+  <h2>Valle d'Aosta</h2>
+  <span class="sub">Alpine extremes · Heroic viticulture</span>
+  <span class="count">4 wines</span>
+</div>
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-aosta">Valle d'Aosta · DOC</span><div class="producer-name">Cave Mont Blanc · Caves de Donnas</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Blanc de Morgex et de La Salle DOC</p>
+  <p class="grape-sub">100% Prié Blanc · 900–1,200m · Europe's highest vineyards</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–1,800</span><span class="price-usd">≈ USD 37–55 · intl avg ~USD 30–40</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Very pale straw; white flowers, green apple, mountain herbs, mineral, flint. High acidity, light body. Ungrafted vines — never affected by phylloxera. Cave Mont Blanc de Morgex et La Salle (est. 1983, 80 members, 18ha) is the benchmark co-op.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">callmewine.com</span><span class="ret eu">xtrawine.com</span><span class="ret">wine-searcher.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-aosta">Valle d'Aosta · DOC</span><div class="producer-name">Caves de Donnas co-op</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Valle d'Aosta Donnas DOC</p>
+  <p class="grape-sub">Nebbiolo (Picotendro) · Alpine terraces, ~600m altitude</p>
+  <div class="price-row"><span class="price-ntd">NT$1,500–2,500</span><span class="price-usd">≈ USD 46–76</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale; rose, red fruit, underbrush, tar. High acidity, medium-high tannins. Alpine expression of Nebbiolo — lighter and more floral than Barolo. Metamorphic soils along Dora Baltea river. Caves de Donnas is the co-op producer to source.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">xtrawine.com</span><span class="ret">wine-searcher.com (TW filter)</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-aosta">Valle d'Aosta · DOC</span><div class="producer-name">Grosjean / Ottin / Institut Agricole Régional</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Valle d'Aosta Fumin DOC</p>
+  <p class="grape-sub">100% Fumin · "King of Valle d'Aosta reds"</p>
+  <div class="price-row"><span class="price-ntd">NT$1,800–3,000</span><span class="price-usd">≈ USD 55–91</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Deep; red fruits, herbs, spices, dark fruit. High acidity, high tannins. Only vinified as single varietal since ~30 years ago. Grosjean has 3 Fumin labels incl. Rovettaz cru. Ascent Way TW notes Fumin as their featured Valle d'Aosta variety — enquire at ascentway.com.tw first.</p>
+  <div class="ret-row">
+    <span class="ret tw">Ascent Way TW (enquire)</span><span class="ret eu">superiore.de</span><span class="ret eu">tannico.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-aosta">Valle d'Aosta · DOC</span><div class="producer-name">Institut Agricole Régional · Grosjean</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Valle d'Aosta Torrette DOC</p>
+  <p class="grape-sub">Petit Rouge · Central valley, everyday red</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–1,800</span><span class="price-usd">≈ USD 37–55</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Medium; red fruits, spice, floral. Medium-low acidity, low-medium tannins. Institut Agricole Régional is the research estate and benchmark producer. Also look for Grosjean. Import via EU specialists.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">xtrawine.com</span>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- PIEMONTE -->
+<section class="region-section" id="piemonte">
+<div class="region-header">
+  <h2>Piemonte</h2>
+  <span class="sub">Nebbiolo · Barolo · Barbaresco · Gattinara</span>
+  <span class="count">13 wines</span>
+</div>
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG</span><div class="producer-name">Pio Cesare / Ceretto / Elio Altare / Cascina Adelaide</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Barolo DOCG</p>
+  <p class="grape-sub">100% Nebbiolo · Langhe hills · King of Italian wines</p>
+  <div class="price-row"><span class="price-ntd">NT$1,800–7,500</span><span class="price-usd">village to single-vineyard cru</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale-medium; rose, tar, red cherry, leather, tobacco. High acidity, high tannins, full body. <strong>iCheers:</strong> Pio Cesare village NT$1,800–2,500; Ornato single-vineyard (WA 95) inquiry. <strong>MY9:</strong> Ceretto Brunate NT$5,000–7,500. <strong>iCheers:</strong> Paolo Conterno Ginestra NT$3,200–4,500. <strong>Ascent Way TW:</strong> Elio Altare Arborina, Cascina Adelaide Ravera (inquiry-based). Current vintage on shelves: 2020.</p>
+  <div class="ret-row">
+    <span class="ret tw">iCheers 愛酒窩</span><span class="ret tw">MY9 買酒網</span><span class="ret tw">Ascent Way TW</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG</span><div class="producer-name">Paitin / Gaja / Pio Cesare</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Barbaresco DOCG</p>
+  <p class="grape-sub">100% Nebbiolo · More elegant than Barolo, earlier drinking</p>
+  <div class="price-row"><span class="price-ntd">NT$2,800–18,000+</span><span class="price-usd">village to Gaja single-vineyard tier</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Rose, dried cherry, tobacco, leather. Softer tannins, shorter aging than Barolo. <strong>Ascent Way TW:</strong> Paitin Sorì Paitin NT$2,800–3,800. <strong>MY9/iCheers:</strong> Pio Cesare Barbaresco NT$2,200–3,000. <strong>Jason's/Premium shops:</strong> Gaja Barbaresco NT$12,000–18,000.</p>
+  <div class="ret-row">
+    <span class="ret tw">Ascent Way TW (Paitin)</span><span class="ret tw">iCheers / MY9</span><span class="ret tw">Jason's (Gaja)</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG</span><div class="producer-name">Travaglini / Nervi-Conterno</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Gattinara DOCG</p>
+  <p class="grape-sub">Nebbiolo (Spanna) min. 90% · Northern Piemonte, Alto Piemonte</p>
+  <div class="price-row"><span class="price-ntd">NT$1,500–3,500</span><span class="price-usd">≈ USD 46–106 · intl avg ~USD 39 (Travaglini)</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale-medium; violet, rose, red fruit, iron, leather. High acidity, high tannins. The Oxford Companion describes it as a potential rival to Barolo. Travaglini is the benchmark (intl. avg ~USD 39). Not widely stocked in Taiwan — superiore.de recommended; also enquire at Ascent Way TW.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de (Travaglini)</span><span class="ret tw">Ascent Way TW (enquire)</span><span class="ret">wine-searcher.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOC</span><div class="producer-name">Pio Cesare / Ceretto / Vietti</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Dolcetto d'Alba DOC</p>
+  <p class="grape-sub">100% Dolcetto · Deep fruity everyday red, bitter finish</p>
+  <div class="price-row"><span class="price-ntd">NT$800–1,600</span><span class="price-usd">≈ USD 24–49</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Deep colour; ripe black fruit, grapey, licorice, almond, characteristic bitter finish. Low-medium acidity, medium tannins. Good introductory Piemonte red. Pio Cesare, Ceretto, Vietti all available through Taiwan channels at iCheers, MY9, and Ascent Way.</p>
+  <div class="ret-row">
+    <span class="ret tw">iCheers</span><span class="ret tw">MY9 買酒網</span><span class="ret tw">Ascent Way TW</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG/DOC</span><div class="producer-name">Pio Cesare / Braida / Vietti</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Barbera d'Asti Superiore DOCG</p>
+  <p class="grape-sub">100% Barbera · Oak-aged superiore, high acidity</p>
+  <div class="price-row"><span class="price-ntd">NT$900–2,200</span><span class="price-usd">≈ USD 27–67</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Deep; sour red cherry, earth, vanilla, spice. High acidity, low-medium tannins, medium-full body. Pio Cesare Barbera d'Alba ~NT$900–1,400 at iCheers (confirmed listed). Braida (Giacomo Bologna) is the benchmark for Barbera d'Asti Superiore.</p>
+  <div class="ret-row">
+    <span class="ret tw">iCheers (Pio Cesare)</span><span class="ret tw">Ascent Way TW</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG</span><div class="producer-name">Broglia / Pio Cesare / La Scolca</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Gavi DOCG</p>
+  <p class="grape-sub">100% Cortese · Fresh mineral dry white</p>
+  <div class="price-row"><span class="price-ntd">NT$975–1,800</span><span class="price-usd">iCheers confirmed: Pio Cesare 2018 JS91 = NT$975 (75% promo)</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale straw; white flowers, citrus, green apple, almond, mineral. High acidity. Broglia is Ascent Way TW's Piemonte winery for Gavi. Pio Cesare Gavi at iCheers. La Scolca "White Label" also available in Taiwan through specialty shops.</p>
+  <div class="ret-row">
+    <span class="ret tw">iCheers (Pio Cesare)</span><span class="ret tw">Ascent Way TW (Broglia)</span><span class="ret tw">MY9</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG</span><div class="producer-name">Tenuta Carretta / Vietti / Paitin</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Roero Arneis DOCG</p>
+  <p class="grape-sub">100% Arneis · "White Barolo" of the Roero hills</p>
+  <div class="price-row"><span class="price-ntd">NT$900–1,600</span><span class="price-usd">≈ USD 27–49</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Medium straw; white flowers, ripe pear, stone fruit, almond. Medium acidity. Tenuta Carretta is an Ascent Way TW listed Piemonte winery. Vietti Roero Arneis was cited in iCheers guides. Good food-friendly white for everyday use.</p>
+  <div class="ret-row">
+    <span class="ret tw">Ascent Way TW (Tenuta Carretta)</span><span class="ret tw">iCheers (Vietti)</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG</span><div class="producer-name">Ceretto / La Spinetta / Vietti</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Moscato d'Asti DOCG</p>
+  <p class="grape-sub">100% Moscato · Sweet, lightly frizzante, low alcohol 5–5.5%</p>
+  <div class="price-row"><span class="price-ntd">NT$600–1,200</span><span class="price-usd">Ceretto Santo Stefano ~NT$750 (MY9 member price)</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale straw; orange blossom, peach, apricot, honey, sage. Sweet, high acidity, light-medium body. One of the most widely available Italian wines in Taiwan — Jason's, Citysuper, carrefour, most wine shops carry it.</p>
+  <div class="ret-row">
+    <span class="ret tw">MY9 (Ceretto)</span><span class="ret tw">Jason's / Citysuper</span><span class="ret tw">iCheers / Carrefour</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG</span><div class="producer-name">Montalbera / Luca Ferraris</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Ruchè di Castagnole Monferrato DOCG</p>
+  <p class="grape-sub">Ruchè · Highly aromatic, spicy native variety</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,200</span><span class="price-usd">≈ USD 37–67</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Medium colour; highly aromatic — rose, red fruit, spice, violet, bitter finish. Medium-high tannins. Montalbera is the key producer. Not widely available in Taiwan; worth importing for the IWS course for its distinctive character.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de (Montalbera)</span><span class="ret eu">callmewine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG</span><div class="producer-name">Produttori del Barbaresco / Roagna</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Roero DOCG (Nebbiolo)</p>
+  <p class="grape-sub">Nebbiolo · Lighter, more approachable Nebbiolo style</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,200</span><span class="price-usd">≈ USD 37–67</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale-medium; red flowers, red fruit, underbrush, spice. Lighter and less tannic than Barolo. Good entry-level Nebbiolo for IWS tasting comparison. Ascent Way TW may carry Langhe Nebbiolo DOC as a more accessible substitute.</p>
+  <div class="ret-row">
+    <span class="ret tw">Ascent Way TW (Langhe Nebb.)</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOC</span><div class="producer-name">Walter Massa · Derthona</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Colli Tortonesi Timorasso DOC (Derthona)</p>
+  <p class="grape-sub">Timorasso · Age-worthy, complex — "the white Barolo"</p>
+  <div class="price-row"><span class="price-ntd">NT$2,500–4,500</span><span class="price-usd">≈ USD 76–137</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Floral, citrus, honey, mineral, nuts. Medium-high acidity. Walter Massa single-handedly revived Timorasso. "Derthona" is the new IGT designation. Davide Carlone (Ascent Way TW listed Piemonte winery) — enquire. Otherwise EU import.</p>
+  <div class="ret-row">
+    <span class="ret tw">Ascent Way TW (enquire)</span><span class="ret eu">superiore.de</span><span class="ret eu">callmewine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOCG</span><div class="producer-name">Ferrando / Orsolani</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Erbaluce di Caluso DOCG (dry)</p>
+  <p class="grape-sub">Erbaluce · Crisp alpine white; also passito and sparkling styles</p>
+  <div class="price-row"><span class="price-ntd">NT$900–1,600</span><span class="price-usd">≈ USD 27–49</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale-medium; white flowers, citrus, apple, almond, mineral. High acidity. Ferrando is the benchmark. Also available as Caluso Passito DOCG (dessert). Import via superiore.de or xtrawine.com. Not stocked in Taiwan.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">xtrawine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-piemonte">Piemonte · DOC</span><div class="producer-name">Braghetto / Tenuta Cannona</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Grignolino del Monferrato Casalese DOC</p>
+  <p class="grape-sub">Grignolino · Very pale, fragrant, paradoxically high tannins</p>
+  <div class="price-row"><span class="price-ntd">NT$1,000–1,800</span><span class="price-usd">≈ USD 30–55</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Very pale ruby; fragrant red fruit, flowers, herbs, pepper. High acidity, high tannins despite pale colour — a wine that defies expectations. Davide Carlone (Ascent Way Piemonte winery) may carry — enquire first.</p>
+  <div class="ret-row">
+    <span class="ret tw">Ascent Way TW (enquire)</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- LIGURIA -->
+<section class="region-section" id="liguria">
+<div class="region-header">
+  <h2>Liguria</h2>
+  <span class="sub">Riviera coastal whites · Rossese · Heroic viticulture</span>
+  <span class="count">4 wines</span>
+</div>
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-liguria">Liguria · DOC</span><div class="producer-name">Cascina Feipu / Bruna / Terre Bianche</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Riviera Ligure di Ponente Pigato DOC</p>
+  <p class="grape-sub">Pigato (= Vermentino) · Coastal cliffs, western Riviera</p>
+  <div class="price-row"><span class="price-ntd">NT$1,500–2,500</span><span class="price-usd">≈ USD 46–76</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale straw; floral/herbal, stone fruit, sage, honey, mineral, saline finish. Medium-high acidity. Cascina Feipu dei Massaretti and Bruna are the benchmark producers. Check petros.com.tw as they occasionally carry unusual Italian whites; otherwise EU import.</p>
+  <div class="ret-row">
+    <span class="ret tw">Petros TW (enquire)</span><span class="ret eu">superiore.de</span><span class="ret eu">callmewine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-liguria">Liguria · DOC</span><div class="producer-name">Terre Bianche / Foresti / Maccario</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Rossese di Dolceacqua DOC</p>
+  <p class="grape-sub">Rossese · Fragrant, lighter red near French border</p>
+  <div class="price-row"><span class="price-ntd">NT$1,500–2,800</span><span class="price-usd">≈ USD 46–85</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale-medium; floral, red fruit, herbs, savory spice. Medium-high acidity, medium tannins. Often compared to lighter Pinot Noir. Terre Bianche is the top producer. Close to French border — very small production, limited global distribution. EU import is the main route.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">xtrawine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-liguria">Liguria · DOC</span><div class="producer-name">Cantine Lunae / La Baia del Sole</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Colli di Luni Vermentino DOC</p>
+  <p class="grape-sub">Vermentino · Eastern Liguria / La Spezia coastal area</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,000</span><span class="price-usd">≈ USD 37–61</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale straw; floral, pear/apple, stone fruit, aromatic herbs, saline mineral finish. Medium-high acidity. Cantine Lunae is the benchmark producer. Excellent with Taiwanese seafood dishes.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret tw">Petros TW (enquire)</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-liguria">Liguria · DOC</span><div class="producer-name">Maccario Dringenberg</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Ormeasco di Pornassio DOC</p>
+  <p class="grape-sub">Ormeasco (= Dolcetto) · Inland Ligurian red</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,000</span><span class="price-usd">≈ USD 37–61</span></div>
+  <div class="avail-row"><span class="badge badge-rare">Rare</span></div>
+  <p class="notes">Medium; floral/fruity, spice, bitter finish. Medium-high acidity, medium tannins. Very small production, barely exported. Effectively impossible to source in Taiwan. Suggest Dolcetto d'Alba as a tasting substitute; otherwise try xtrawine.com for import.</p>
+  <div class="ret-row">
+    <span class="ret eu">xtrawine.com (limited)</span><span class="ret">wine-searcher.com</span>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- LOMBARDIA -->
+<section class="region-section" id="lombardia">
+<div class="region-header">
+  <h2>Lombardia</h2>
+  <span class="sub">Franciacorta · Valtellina Nebbiolo · Lugana</span>
+  <span class="count">4 wines</span>
+</div>
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-lombardia">Lombardia · DOCG</span><div class="producer-name">Berlucchi / Ca' del Bosco / Bellavista</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Franciacorta DOCG</p>
+  <p class="grape-sub">Chardonnay / Pinot Nero / Pinot Bianco · Traditional method, min. 18 mo lees</p>
+  <div class="price-row"><span class="price-ntd">NT$1,600–4,500</span><span class="price-usd">Berlucchi '61 Brut; Ca' del Bosco Cuvée Prestige</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale straw; white flowers, citrus, apple, toasted brioche, biscuit. High acidity, fine persistent perlage. Italy's most prestigious sparkling DOCG — the "Italian Champagne." Berlucchi '61 Brut at Jason's / iL Mercato TW. Ca' del Bosco at premium wine shops.</p>
+  <div class="ret-row">
+    <span class="ret tw">iL Mercato TW (Berlucchi)</span><span class="ret tw">Jason's / Citysuper</span><span class="ret tw">Ascent Way TW (enquire)</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-lombardia">Lombardia · DOCG</span><div class="producer-name">Mamete Prevostini / Rainoldi / Nino Negri</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Sforzato di Valtellina DOCG</p>
+  <p class="grape-sub">Nebbiolo (Chiavennasca) · Appassimento method, min. 14% alc.</p>
+  <div class="price-row"><span class="price-ntd">NT$2,500–5,000</span><span class="price-usd">≈ USD 76–152</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Medium-deep; ripe/dried red fruit, spice, tobacco, leather, licorice. High alcohol, dry. Alpine equivalent of Amarone — dried Nebbiolo from steep alpine terraces. Mamete Prevostini "Corte di Cama" and "Albareda" are the top labels. Not in Taiwan — import via superiore.de.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de (Mamete Prevostini)</span><span class="ret eu">xtrawine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-lombardia">Lombardia · DOCG</span><div class="producer-name">Mamete Prevostini / Sandro Fay / Ar.Pe.Pe.</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Valtellina Superiore DOCG</p>
+  <p class="grape-sub">Nebbiolo · Sassella / Grumello / Inferno / Valgella sub-zones</p>
+  <div class="price-row"><span class="price-ntd">NT$1,800–3,500</span><span class="price-usd">≈ USD 55–106</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale-medium; alpine herbs, red flowers, red fruit, leather, tobacco. High acidity, medium-high tannins. Sassella is generally finest sub-zone. Mamete Prevostini and Ar.Pe.Pe. (traditional style) are top producers. Import recommended — not in Taiwan stores.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">callmewine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-lombardia">Lombardia · DOC</span><div class="producer-name">Ottella / Ca' dei Frati / Zenato</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Lugana Superiore / Riserva DOC</p>
+  <p class="grape-sub">Turbiana (Trebbiano di Lugana) · Lake Garda, southern Lombardia</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,800</span><span class="price-usd">≈ USD 37–85</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Medium yellow-straw; white flowers, citrus, yellow apple, stone fruit, mineral/flinty, nuts. High acidity, medium-full body. Italy's most underrated great white. Zenato at iCheers and MY9. Ca' dei Frati at specialty TW shops.</p>
+  <div class="ret-row">
+    <span class="ret tw">iCheers (Zenato)</span><span class="ret tw">MY9 買酒網</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- EMILIA-ROMAGNA -->
+<section class="region-section" id="emilia">
+<div class="region-header">
+  <h2>Emilia-Romagna</h2>
+  <span class="sub">Lambrusco · Albana · Dry sparkling reds</span>
+  <span class="count">3 wines</span>
+</div>
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-emilia">Emilia-Romagna · DOC</span><div class="producer-name">Cantina di Sorbara / Cavicchioli</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Lambrusco di Sorbara DOC (secco/dry)</p>
+  <p class="grape-sub">Lambrusco di Sorbara · Pale, fragrant sparkling red — the lightest Lambrusco</p>
+  <div class="price-row"><span class="price-ntd">NT$600–1,200</span><span class="price-usd">≈ USD 18–37</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale ruby; fragrant red fruit, pink grapefruit, violet, mineral, saline finish. Dry, high acidity, low-medium tannins, low alcohol. Cantina di Sorbara "Emma" label is the benchmark. NB: WSG specifies secco (dry) style — avoid amabile/dolce. Available at specialty TW wine shops.</p>
+  <div class="ret-row">
+    <span class="ret tw">MY9 / specialty TW shops</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-emilia">Emilia-Romagna · DOC</span><div class="producer-name">Cleto Chiarli / Cavicchioli / Medici Ermete</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Lambrusco Grasparossa di Castelvetro DOC (secco/dry)</p>
+  <p class="grape-sub">Lambrusco Grasparossa · Deeper, more tannic Lambrusco style</p>
+  <div class="price-row"><span class="price-ntd">NT$600–1,200</span><span class="price-usd">≈ USD 18–37</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Deep ruby; red/black fruit, floral, earth, balsamic. Dry, high acidity, medium-high tannins. Darker and more structured than Sorbara — essential contrast for IWS tasting. Cleto Chiarli is the classic producer. Available at specialty wine shops in Taiwan.</p>
+  <div class="ret-row">
+    <span class="ret tw">MY9 / specialty TW shops</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-emilia">Emilia-Romagna · DOCG</span><div class="producer-name">Fattoria Zerbina / Tre Monti</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Romagna Albana DOCG (secco/dry)</p>
+  <p class="grape-sub">Albana · Italy's first white DOCG (1987); also passito style</p>
+  <div class="price-row"><span class="price-ntd">NT$1,000–2,000</span><span class="price-usd">≈ USD 30–61</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Medium-deep straw; white flowers, sage, citrus, green apple. Medium-high acidity, light tannic texture. Fattoria Zerbina is the standout producer (also excellent passito version "Scacco Matto"). Not commonly in Taiwan — import from EU. Also worth trying as Romagna Albana Passito DOCG.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de (Zerbina)</span><span class="ret eu">callmewine.com</span>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- TRENTINO -->
+<section class="region-section" id="trentino">
+<div class="region-header">
+  <h2>Trentino</h2>
+  <span class="sub">Teroldego · Trento DOC sparkling · Alpine whites</span>
+  <span class="count">4 wines</span>
+</div>
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-trentino">Trentino · DOC / IGT</span><div class="producer-name">Foradori / Mezzacorona / Dorigati</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Teroldego Rotaliano DOC / Vigneti delle Dolomiti IGT</p>
+  <p class="grape-sub">Teroldego · Dark, powerful alpine red from Campo Rotaliano</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–3,500</span><span class="price-usd">≈ USD 37–106</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Deep purple; ripe black fruit, wild herbs, espresso, cocoa, tar. High acidity, medium-high tannins, full body. Foradori is the cult producer (labeled IGT Vigneti delle Dolomiti). Not commonly stocked in Taiwan — import via superiore.de or wine.com.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de (Foradori)</span><span class="ret eu">callmewine.com</span><span class="ret">wine-searcher.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-trentino">Trentino · DOC</span><div class="producer-name">Ferrari Trento / Cantine Rotari / Maso Martis</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Trento DOC (traditional method sparkling)</p>
+  <p class="grape-sub">Chardonnay / Pinot Nero · Benchmark Italian sparkling, est. 1902</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,500</span><span class="price-usd">Ferrari Brut intl ~USD 20–25 · TW ~NT$1,200–1,800</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale straw; white flowers, citrus, apple, stone fruit, toasty/autolytic notes. High acidity. Ferrari Brut is the most widely distributed TrentoDOC — JS 92pts, 4× winner at Champagne World Championships. Available at Citysuper, Jason's and F1-associated retailers (Ferrari is Official Toast of Formula 1® from 2021).</p>
+  <div class="ret-row">
+    <span class="ret tw">Citysuper / Jason's TW</span><span class="ret tw">Driven By (F1 retailer TW)</span><span class="ret tw">MY9 買酒網</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-trentino">Trentino · DOC / IGT</span><div class="producer-name">Pojer e Sandri / Marco Donati</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Trentino Superiore Müller-Thurgau DOC (Val di Cembra)</p>
+  <p class="grape-sub">Müller-Thurgau · High-altitude aromatic mountain white</p>
+  <div class="price-row"><span class="price-ntd">NT$900–1,600</span><span class="price-usd">≈ USD 27–49</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale green-yellow; white flowers, herbs, citrus, apple, stone fruit, mineral. Medium-high acidity. Val di Cembra at 600–1,000m produces Italy's finest Müller-Thurgau. Pojer e Sandri is the standout. Not in Taiwan — import from EU specialists.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">xtrawine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-trentino">Trentino · DOC</span><div class="producer-name">Zeni / Pravis / Vallarom</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Trentino Superiore Marzemino DOC</p>
+  <p class="grape-sub">Marzemino · "Eccellente Marzimino" (Don Giovanni) dark fragrant red</p>
+  <div class="price-row"><span class="price-ntd">NT$900–1,600</span><span class="price-usd">≈ USD 27–49</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Deep; fragrant red fruit, violet, herbs, almond. Sub-zones Isera and Ziresi produce the finest. Famous in Mozart's Don Giovanni. Zeni is a widely available producer. Import from EU.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">callmewine.com</span>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- ALTO ADIGE -->
+<section class="region-section" id="altoadige">
+<div class="region-header">
+  <h2>Alto Adige</h2>
+  <span class="sub">Gewürztraminer · Pinot Bianco · Lagrein · Schiava · Alpine whites</span>
+  <span class="count">6 wines</span>
+</div>
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-altoadige">Alto Adige · DOC</span><div class="producer-name">Elena Walch / Tramin co-op / Hofstätter</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Alto Adige Gewürztraminer DOC</p>
+  <p class="grape-sub">Gewürztraminer · Italy's finest expression of this variety</p>
+  <div class="price-row"><span class="price-ntd">NT$1,800–4,500</span><span class="price-usd">Elena Walch Kastelaz single-vineyard ~NT$2,000–3,000</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Deep yellow-gold; rose petals, lychee, ginger, star anise, exotic fruit. Low-medium acidity, high alcohol, full body. Elena Walch Vigna Kastelaz (single-vineyard) is the benchmark at 92–95pts. Available from specialty TW importers and wine-searcher. The village the grape was named after (Termeno/Tramin) is in this region.</p>
+  <div class="ret-row">
+    <span class="ret tw">Specialty TW importers</span><span class="ret tw">Ascent Way TW (enquire)</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-altoadige">Alto Adige · DOC</span><div class="producer-name">Cantina Terlano / Nals Margreid</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Alto Adige Terlano Sauvignon DOC</p>
+  <p class="grape-sub">Sauvignon Blanc · Mineral, austere, long-ageing alpine style</p>
+  <div class="price-row"><span class="price-ntd">NT$1,500–8,000+</span><span class="price-usd">Standard ~NT$1,500–2,000 · Terlano "Quarz" JS 97+ ~NT$6,000+</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Medium straw; gooseberry, cut grass, citrus, exotic fruit, mineral. High acidity. Cantina Terlano "Quarz" is the cult single-vineyard expression — among the world's finest Sauvignon Blancs. Standard Terlano Sauvignon ~NT$1,500–2,000. Import via EU specialists.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">callmewine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-altoadige">Alto Adige · DOC</span><div class="producer-name">Cantina Terlano / Elena Walch / Alois Lageder</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Alto Adige Terlano Pinot Bianco DOC</p>
+  <p class="grape-sub">Pinot Bianco · Potentially the greatest Pinot Bianco in the world</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–6,000+</span><span class="price-usd">Standard ~NT$1,200–2,000 · Vorberg Riserva (40yr+ aging) ~NT$5,000+</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale-medium straw; white flowers, citrus, apple/pear, mineral, nuts. High acidity. Cantina Terlano Vorberg Riserva can age for 40+ years. Standard Terlano Pinot Bianco is excellent and affordable. Import via EU specialists.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">callmewine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-altoadige">Alto Adige · DOC</span><div class="producer-name">Elena Walch / Alois Lageder / Cantina Bolzano</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Alto Adige Lagrein Riserva DOC</p>
+  <p class="grape-sub">Lagrein · Indigenous dark red, unique to Bolzano</p>
+  <div class="price-row"><span class="price-ntd">NT$1,500–3,500</span><span class="price-usd">≈ USD 46–106</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Deep; floral, red/black fruit, spice, tobacco, meaty character, bitter finish. High acidity, medium-high tannins. Elena Walch carries multiple Lagrein labels. Alois Lageder is widely distributed. Check Ascent Way TW and specialty importers — some Elena Walch available in Taiwan.</p>
+  <div class="ret-row">
+    <span class="ret tw">Specialty TW importers</span><span class="ret tw">Ascent Way TW (enquire)</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-altoadige">Alto Adige · DOC</span><div class="producer-name">Muri-Gries / Cantina Bolzano / Cantina Nals</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Alto Adige Santa Maddalena DOC</p>
+  <p class="grape-sub">Schiava · Light, fresh everyday red of Bolzano</p>
+  <div class="price-row"><span class="price-ntd">NT$900–1,500</span><span class="price-usd">≈ USD 27–46</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale-medium; violet, strawberry, grapey, almond. Medium-high acidity, very low tannins, light body. The everyday red of Bolzano — similar to lighter Pinot Noir. Muri-Gries monastery is a top producer. Import via EU; also consider Lago di Caldaro DOC as alternative.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de</span><span class="ret eu">xtrawine.com</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-altoadige">Alto Adige · DOC</span><div class="producer-name">Abbazia di Novacella / Kuenhof / Köfererhof</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Alto Adige Valle Isarco Sylvaner DOC</p>
+  <p class="grape-sub">Sylvaner · High-altitude Valle Isarco valley whites</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,200</span><span class="price-usd">≈ USD 37–67</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Pale-medium straw; apple, stone fruit, hay, herbs, spice, earth, mineral. High acidity. Abbazia di Novacella (novacella.it) is listed by Ascent Way TW — enquire directly. Kuenhof and Köfererhof are also excellent producers for the Valle Isarco style.</p>
+  <div class="ret-row">
+    <span class="ret tw">Ascent Way TW (Abbazia Novacella)</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- VENETO -->
+<section class="region-section" id="veneto">
+<div class="region-header">
+  <h2>Veneto</h2>
+  <span class="sub">Amarone · Valpolicella · Soave · Prosecco · Bardolino</span>
+  <span class="count">6 wines</span>
+</div>
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-veneto">Veneto · DOCG</span><div class="producer-name">Masi / Dal Forno Romano / Quintarelli / Bertani</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Amarone della Valpolicella Classico DOCG</p>
+  <p class="grape-sub">Corvina 45–95% / Corvinone / Rondinella · Appassimento 90+ days, dry</p>
+  <div class="price-row"><span class="price-ntd">NT$2,950–11,900</span><span class="price-usd">Masi Costasera NT$2,950 · Dal Forno RP99 NT$11,900 (iCheers confirmed)</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Deep; ripe black fruit, dried berry, licorice, dark chocolate, rum, leather. High acidity, velvety tannins, high alcohol, full body. <strong>Masi Costasera Classico:</strong> NT$2,950 regular, NT$2,360 promo at iCheers. <strong>Masi Campolongo di Torbe (JS97):</strong> NT$6,950 / NT$5,560 promo. <strong>Dal Forno Monte Lodoletta (RP99):</strong> NT$11,900 (iCheers member). <strong>Bertani Classico:</strong> also at iCheers.</p>
+  <div class="ret-row">
+    <span class="ret tw">iCheers (Masi / Dal Forno)</span><span class="ret tw">MY9 / Jason's</span><span class="ret tw">Ascent Way TW</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-veneto">Veneto · DOC</span><div class="producer-name">Masi / Zenato / Bertani / Tedeschi</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Valpolicella Classico Superiore DOC / Ripasso DOC</p>
+  <p class="grape-sub">Corvina blend · Ripasso = re-fermented on Amarone lees</p>
+  <div class="price-row"><span class="price-ntd">NT$800–2,000</span><span class="price-usd">Ripasso tier ~NT$1,200–1,800</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Medium; red flowers, sour cherry, herbs, almond, bitter finish. Ripasso adds dried fruit, spice, more body. Masi Campofiorin Ripasso was one of Italy's first Ripasso wines — widely available in Taiwan. Zenato Ripassa Ripasso also at iCheers and MY9. Very accessible price point.</p>
+  <div class="ret-row">
+    <span class="ret tw">iCheers (Masi / Zenato)</span><span class="ret tw">MY9 買酒網</span><span class="ret tw">Jason's / Citysuper</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-veneto">Veneto · DOC</span><div class="producer-name">Guerrieri Rizzardi / Cavalchina / Boscaini Carlo</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Bardolino Classico DOC</p>
+  <p class="grape-sub">Corvina / Corvinone / Rondinella / Molinara · Light Lake Garda red</p>
+  <div class="price-row"><span class="price-ntd">NT$600–1,200</span><span class="price-usd">≈ USD 18–37</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale-medium; red flowers, cherry, spice, saltiness, bitter finish. High acidity, low-medium tannins, light body. Excellent pairing with Taiwanese seafood. Available at Jason's and specialty wine shops. Also seek out Bardolino Classico Chiaretto (rosé) for interesting contrast.</p>
+  <div class="ret-row">
+    <span class="ret tw">Jason's / Citysuper TW</span><span class="ret tw">MY9 買酒網</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-veneto">Veneto · DOCG</span><div class="producer-name">Bisol / Nino Franco / Ruggeri / Sorelle Bronca</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Conegliano Valdobbiadene Prosecco Superiore DOCG</p>
+  <p class="grape-sub">Glera · Tank method · Cartizze sub-zone = finest single-vineyard</p>
+  <div class="price-row"><span class="price-ntd">NT$600–2,500</span><span class="price-usd">Standard ~NT$600–1,000 · Cartizze Dry ~NT$1,800–2,500</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale straw; white flowers, citrus, pear, peach. Off-dry to brut. Most widely available Italian sparkling wine in Taiwan — Jason's, Citysuper, Carrefour, nearly all wine shops. For IWS: prioritise DOCG over generic Prosecco DOC, and seek Bisol Cartizze for the premium sub-zone expression.</p>
+  <div class="ret-row">
+    <span class="ret tw">Jason's / Citysuper / Carrefour</span><span class="ret tw">iCheers / MY9</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-veneto">Veneto · DOC</span><div class="producer-name">Pieropan / Gini / Inama / Prà</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Soave Classico DOC</p>
+  <p class="grape-sub">Garganega ≥ 70% · Volcanic basalt hillside whites</p>
+  <div class="price-row"><span class="price-ntd">NT$800–2,000</span><span class="price-usd">Pieropan Classico ~NT$1,000–1,500</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale-medium straw; chamomile, iris, citrus, ripe yellow fruit, almond, mineral. High acidity, medium body. Pieropan is the benchmark (WE 95, 2023 vintage). Masi Levarie Soave Classico listed at iCheers. Gini and Inama available at Petros TW and specialty shops.</p>
+  <div class="ret-row">
+    <span class="ret tw">iCheers (Masi Levarie Soave)</span><span class="ret tw">Petros TW (Gini/Inama)</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-veneto">Veneto · DOCG</span><div class="producer-name">Quintarelli / Dal Forno / Masi</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Recioto della Valpolicella DOCG (sweet)</p>
+  <p class="grape-sub">Corvina blend · Sweet appassimento red — the ancestor of Amarone</p>
+  <div class="price-row"><span class="price-ntd">NT$1,800–4,000</span><span class="price-usd">≈ USD 55–122 (often sold in 375ml)</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Deep; ripe black fruit, jam, chocolate, spice. Sweet, high acidity, medium tannins. The precursor to Amarone — legend has it Amarone was born from a "forgotten" Recioto that fermented dry. Masi and Bertani via EU import are the most accessible.</p>
+  <div class="ret-row">
+    <span class="ret eu">superiore.de (Masi Recioto)</span><span class="ret">wine-searcher.com</span>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- FRIULI-VG -->
+<section class="region-section" id="friuli">
+<div class="region-header">
+  <h2>Friuli-Venezia Giulia</h2>
+  <span class="sub">Collio whites · Friulano · Ribolla Gialla · Refosco</span>
+  <span class="count">7 wines</span>
+</div>
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-friuli">Friuli-VG · DOC</span><div class="producer-name">Schiopetto / Livio Felluga / Venica &amp; Venica</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Collio Friulano DOC</p>
+  <p class="grape-sub">Friulano · Complex herbal white on "ponca" (flysch marl) soils</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,500</span><span class="price-usd">Schiopetto intl avg ~USD 34</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Pale-medium straw; white flowers, apple, stone fruit, herbal, hay, almond. Medium-high acidity, medium-full body. Schiopetto pioneered cold fermentation in Collio. Petros TW (petros.com.tw) specialises in Friuli and Veneto — best Taiwan source. Ascent Way TW Friuli section also an option.</p>
+  <div class="ret-row">
+    <span class="ret tw">Petros TW (best source)</span><span class="ret tw">Ascent Way TW (enquire)</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-friuli">Friuli-VG · DOC</span><div class="producer-name">Schiopetto / Livio Felluga / Venica &amp; Venica</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Collio Sauvignon DOC</p>
+  <p class="grape-sub">Sauvignon Blanc · Herbal, mineral — distinctly Friulian style</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,500</span><span class="price-usd">Schiopetto avg ~USD 26</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Medium straw; tomato leaf, sage, citrus, cut grass, stone fruit, flint, mineral. High acidity. More mineral and herbal than New Zealand or Loire versions. Petros TW is the best Taiwan source for Collio whites.</p>
+  <div class="ret-row">
+    <span class="ret tw">Petros TW</span><span class="ret tw">Ascent Way TW (enquire)</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-friuli">Friuli-VG · DOC / IGT</span><div class="producer-name">Jermann / Gravner / Radikon</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Collio Ribolla Gialla DOC</p>
+  <p class="grape-sub">Ribolla Gialla · White or orange (skin-contact) wine style</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–5,000+</span><span class="price-usd">Jermann Vinnae ~NT$1,500–2,000 · Gravner amphora ~NT$4,000+</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">White: pale straw, white flowers, citrus, apple, mineral, crisp. Orange (Gravner/Radikon): amber, nutty, tannic, layered and complex. Jermann Vinnae Ribolla at Petros TW. Gravner's amphora-aged version is a collector piece. Vin37 TW carries natural/orange wine versions. The WSG suggests tasting orange wine last in the flight.</p>
+  <div class="ret-row">
+    <span class="ret tw">Petros TW (Jermann Vinnae)</span><span class="ret tw">Vin37 TW (Gravner/Radikon)</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-friuli">Friuli-VG · DOC / IGT</span><div class="producer-name">Jermann (Vintage Tunina) / Livio Felluga (Terre Alte)</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Collio Bianco DOC / Venezia Giulia IGT (super-white blend)</p>
+  <p class="grape-sub">Multi-variety blend · Complex, structured "super-white"</p>
+  <div class="price-row"><span class="price-ntd">NT$2,000–6,000</span><span class="price-usd">Jermann Vintage Tunina ~NT$2,400–3,600 (Petros TW)</span></div>
+  <div class="avail-row"><span class="badge badge-tw">TW available</span></div>
+  <p class="notes">Complex and structured. Dry, high acidity, medium-full body. Jermann Vintage Tunina (Sauvignon/Chardonnay/Ribolla/Malvasia/Picolit blend) is the benchmark super-white at NT$2,400–3,600 at Petros TW. Livio Felluga Terre Alte also excellent. Italy's equivalent of white Burgundy Grands Crus in complexity.</p>
+  <div class="ret-row">
+    <span class="ret tw">Petros TW (Jermann Vintage Tunina)</span><span class="ret tw">Ascent Way TW (enquire)</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-friuli">Friuli-VG · DOC</span><div class="producer-name">Le Vigne di Zamo / Torre Rosazza / Ronchi di Manzano</div></div>
+  <span class="badge badge-pri">Priority</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Friuli Colli Orientali Refosco DOC</p>
+  <p class="grape-sub">Refosco dal Peduncolo Rosso · Distinctive native Friulian red</p>
+  <div class="price-row"><span class="price-ntd">NT$1,200–2,500</span><span class="price-usd">≈ USD 37–76</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Deep; red flowers, blackberry, plum, herbs, forest floor, almond, spice. High acidity, high tannins. One of Friuli's most characterful native reds. Not commonly stocked in Taiwan. Petros TW and Ascent Way TW Friuli section are the best bets; otherwise EU import.</p>
+  <div class="ret-row">
+    <span class="ret tw">Petros TW (enquire)</span><span class="ret tw">Ascent Way TW (enquire)</span><span class="ret eu">superiore.de</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-friuli">Friuli-VG · DOC</span><div class="producer-name">Ronchi di Cialla / La Viarte / Paolo Rodaro</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Friuli Colli Orientali Schioppettino DOC</p>
+  <p class="grape-sub">Schioppettino · Peppery, spicy native red — near-extinct, revived 1970s</p>
+  <div class="price-row"><span class="price-ntd">NT$1,500–3,000</span><span class="price-usd">≈ USD 46–91</span></div>
+  <div class="avail-row"><span class="badge badge-intl">Intl. order</span></div>
+  <p class="notes">Deep; red flowers, black fruit, distinctive pepper and spice. High acidity, high tannins. Saved from extinction by Ronchi di Cialla in the 1970s. Very rare globally. Vin37 TW natural wine focus may carry — worth enquiring. Otherwise EU import.</p>
+  <div class="ret-row">
+    <span class="ret tw">Vin37 TW (enquire)</span><span class="ret eu">superiore.de (limited)</span>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+  <div><span class="region-pill pill-friuli">Friuli-VG · DOC</span><div class="producer-name">Zidarich / Skerk / Lupinc</div></div>
+  <span class="badge badge-sec">Secondary</span>
+</div>
+<div class="card-body">
+  <p class="wine-name">Carso Vitovska DOC</p>
+  <p class="grape-sub">Vitovska · Rare karst plateau white; sometimes orange wine style</p>
+  <div class="price-row"><span class="price-ntd">NT$1,800–3,500</span><span class="price-usd">≈ USD 55–106</span></div>
+  <div class="avail-row"><span class="badge badge-rare">Rare</span></div>
+  <p class="notes">Pale-medium straw; white flowers, pear, hay, sage, nuts, honey, mineral. High acidity. Carso is a wild karst plateau between Trieste and Slovenia. Zidarich and Skerk are the cult producers. Also consider Collio Malvasia DOC as a slightly more available alternative. Vin37 TW is the most likely Taiwan source.</p>
+  <div class="ret-row">
+    <span class="ret tw">Vin37 TW (natural wines)</span><span class="ret eu">superiore.de (limited)</span>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- SOURCING GUIDE -->
+<section id="sourcing">
+<div class="sourcing-tip">
+<h3>Taiwan & International Sourcing Guide</h3>
+<p><strong>Ascent Way 越昇國際</strong> — ascentway.com.tw · Est. 1997, Taiwan's oldest Italian-specialist importer, 60+ wineries across all 20 Italian regions including all 9 northern ones. Physical stores in Taipei (明水路535號). Inquiry-based pricing. Best for: Piemonte (Barolo/Barbaresco/Gavi/Arneis via Broglia, Tenuta Carretta, Paitin, Elio Altare, Cascina Adelaide), Alto Adige (Abbazia di Novacella), Friuli (enquire). Tel: contact via website.</p>
+<p style="margin-top:0.5rem"><strong>iCheers 愛酒窩</strong> — icheers.tw · 13,000+ SKUs, live pricing, Taiwan's largest online wine shop. Best for: Barolo (Pio Cesare, Paolo Conterno), Amarone (Masi, Dal Forno), Barbera, Gavi, Valpolicella Ripasso, Soave, Lambrusco, Lugana, Moscato d'Asti, Prosecco. Join mailing list for 75–80% promo events.</p>
+<p style="margin-top:0.5rem"><strong>MY9 買酒網</strong> — my9.com.tw · General wine retailer with physical stores. Best for: Ceretto Barolo/Barbaresco/Moscato d'Asti, Pio Cesare Barbaresco, mainstream Valpolicella. Convenient for in-store pickup across Taiwan.</p>
+<p style="margin-top:0.5rem"><strong>Petros Wine</strong> — petros.com.tw · Boutique Friuli and Veneto specialist. Best for: Collio Friulano, Collio Sauvignon, Ribolla Gialla (Jermann Vinnae), Jermann Vintage Tunina, Soave (Pieropan, Gini, Inama), Refosco.</p>
+<p style="margin-top:0.5rem"><strong>Vin37 酒訪</strong> — vin37cellar.com.tw (Taoyuan) · Natural and artisan wine specialist, owner personally visits Italian wineries. Best for: Gravner/Radikon orange Ribolla, Schioppettino, Vitovska, Refosco, natural Lambrusco, Emilia-Romagna artisan producers.</p>
+<p style="margin-top:0.5rem"><strong>iL Mercato 義瑪卡多</strong> — ilmercato.com.tw · Italian F&amp;B concept store. Best for: Franciacorta (Berlucchi), approachable sparkling, lifestyle pairings.</p>
+<p style="margin-top:0.5rem"><strong>International / EU import</strong> — For Valle d'Aosta, Liguria, Gattinara, Sforzato, Ruchè, and other hard-to-find appellations: <strong>superiore.de</strong> (ships worldwide, 3,500+ Italian wines), <strong>callmewine.com</strong>, <strong>xtrawine.com</strong>. Use <strong>wine-searcher.com</strong> with country set to Taiwan to cross-check if any local stock exists before ordering internationally.</p>
+</div>
+</section>
+
+</main>
+</div>
+
+<script>
+document.querySelectorAll('.sidebar-link').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
